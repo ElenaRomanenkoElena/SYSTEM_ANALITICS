@@ -33,7 +33,7 @@ if (Контракт найден?) then (да)
     else (нет)
     :Отказ (Недопустимый тип БГ);
     note
-    403 Forbodden
+    403 Forbidden
     end note
     stop
     endif
@@ -48,7 +48,7 @@ if (Контракт найден?) then (да)
     else (нет)
     :Отказ (Проверка не пройдена);
     note
-    403 Forbodden
+    403 Forbidden
     end note
     stop
     endif
@@ -64,7 +64,7 @@ if (Контракт найден?) then (да)
     else (нет)
     :Отказ (Высокий риск);
     note
-    403 Forbodden
+    403 Forbidden
     end note
     stop
     endif
@@ -82,7 +82,7 @@ if (Контракт найден?) then (да)
     else (нет)
     :Отказ (Нарушены сроки или сумма);
     note
-    403 Forbodden
+    403 Forbidden
     end note
     stop
     endif

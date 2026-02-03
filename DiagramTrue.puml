@@ -1,0 +1,159 @@
+@startuml
+title Механика работы метода создания заявки на банковскую гарантию
+
+skinparam activity {
+  startColor green
+  endColor red
+  stopColor red
+}
+
+|Клиент|
+start
+:Создание заявки;
+repeat 
+:Ввод данных по заявке \n (контракт, площадка размещения, сумма, срок);
+note 
+POST/orders
+end note
+
+|Система Банковской гарантии|
+:Валидация введенных данных;
+:Запрос данных о контракте в ЕИС;
+note
+    Get/contracts/{contractID}
+end note
+if (Контракт найден?) then (да)
+
+    :Проверка требований к клиенту по 44-ФЗ;
+    note
+    POST/compliance/chek-44fz
+    end note
+    if (Допустим такой тип БГ?) then (да)
+    |Клиент|
+    else (нет)
+    :Отказ (Недопустимый тип БГ);
+    note
+    403 Forbodden
+    end note
+    stop
+    endif
+    
+    |Система Банковской гарантии|    
+    :Проверка на фрод (KYC / AML проверка);
+    note
+    POST/internal/fraud-check
+    end note
+    if (Проверка пройдена?) then (да)
+    |Клиент|
+    else (нет)
+    :Отказ (Проверка не пройдена);
+    note
+    403 Forbodden
+    end note
+    stop
+    endif
+    
+    |Система Банковской гарантии|        
+    :Проверка банком финансовых рисков;
+    note
+    POST/internal/financial-risk-check
+    end note
+    if (Проверка пройдена?) then (да);
+    
+    |Клиент|
+    else (нет)
+    :Отказ (Высокий риск);
+    note
+    403 Forbodden
+    end note
+    stop
+    endif
+             
+    |Система Банковской гарантии|        
+    :Проверка суммы и срока банковской гарантии;
+    note
+    POST/compliance/check-amount-term
+    end note
+    if (Соответствует 44-ФЗ?) then (да)
+                
+                    :Рассчет комиссии за БГ;
+    
+    |Клиент|                
+    else (нет)
+    :Отказ (Нарушены сроки или сумма);
+    note
+    403 Forbodden
+    end note
+    stop
+    endif
+            
+                
+           
+else (нет)
+:Контракт не найден;
+        |Клиент|
+        if (Ввести данные заново?) then (да)
+        
+            :Ввод новых данных контракта;
+        else (нет)
+            :Отказ от повторного ввода данных;
+            note
+            204 Cancelled by user
+            end note
+            stop
+        endif
+
+endif
+|Система Банковской гарантии|
+repeat while (Исправлять данные?) is (да)
+
+
+
+|Клиент|
+:Оплата комисии за БГ;
+note
+POST/payments
+end note
+
+|Система Банковской гарантии|
+if (Оплата получена) then (да)
+    :Формирование БГ;
+    note
+    POST/guarantees
+    end note
+    :Подписание БГ ЭЦП;
+    :Подача информации в ЕИС;
+    note
+    POST/eis/guarantees
+    end note
+    :Выдача БГ клиенту;
+|Клиент|
+    :Заявка одобрена;
+     note
+    201 Created
+    end note
+    stop
+else (нет)
+:Оплата не получена;
+note
+402 Payment Required
+end note
+stop
+endif
+
+
+
+
+
+        
+    
+            
+                
+                
+            
+
+
+
+
+
+@enduml

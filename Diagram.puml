@@ -1,0 +1,88 @@
+@startuml
+title Механика работы метода создания заявки на банковскую гарантию
+
+skinparam activity {
+  startColor green
+  endColor red
+  stopColor red
+}
+
+|Клиент|
+start
+:Создание заявки;
+repeat
+:POST /orders;
+
+|Система Банковской гарантии|
+:Валидация введенных данных;
+:GET /contracts/{contractID};
+if (Контракт найден?) then (да)
+    :POST /compliance/44fz-checks;
+
+    if (Допустим такой тип БГ?) then (да)
+    |Клиент|
+    else (нет)
+    :400 Bad Request;
+    stop
+    endif
+
+    |Система Банковской гарантии|
+    :POST /internal/fraud-checks;
+    if (Проверка пройдена?) then (да)
+    |Клиент|
+    else (нет)
+    :400 Bad Request;
+    stop
+    endif
+
+    |Система Банковской гарантии|
+    :POST /internal/financial-risk-checks;
+    if (Проверка пройдена?) then (да);
+    |Клиент|
+    else (нет)
+    :400 Bad Request;
+    stop
+    endif
+
+    |Система Банковской гарантии|
+    :POST /compliance/amount-term-checks;
+    if (Соответствует 44-ФЗ?) then (да)
+        :Рассчет комиссии за БГ;
+    |Клиент|
+    else (нет)
+    :400 Bad Request;
+    stop
+    endif
+
+else (нет)
+:Контракт не найден;
+        |Клиент|
+        if (Ввести данные заново?) then (да)
+            :Ввод новых данных контракта;
+        else (нет)
+            :204 Cancelled by user;
+            stop
+        endif
+
+endif
+|Система Банковской гарантии|
+repeat while (Исправлять данные?) is (да)
+
+|Клиент|
+:POST /payments;
+
+|Система Банковской гарантии|
+if (Оплата получена) then (да)
+    :POST /guarantees;
+    :Подписание БГ ЭЦП;
+    :POST /eis/guarantees;
+    :Выдача БГ клиенту;
+|Клиент|
+    :201 Created;
+    stop
+else (нет)
+:402 Payment Required;
+stop
+endif
+
+@enduml

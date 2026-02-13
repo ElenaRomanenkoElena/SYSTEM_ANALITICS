@@ -1,0 +1,391 @@
+openapi: 3.0.0
+info:
+  title: Банковское приложение по выдаче банковской гарантии
+  description: API для управления заявкой на банковскую гарантию, применяя концепцию HATEOAS
+  version: 1.0.0
+servers:
+  - url: https://api.bank_guarantee.com/v1
+    description: Production server
+paths:
+  /quarantees:
+    post:
+      summary: Метод добавления заявки на выдачу банковской гарантии
+      description: Метод позволяет добавить заявку на банковскую гарантию
+      security:
+        - bearerAuth: []
+      tags:
+        - quarantee
+      parameters:
+        - in: header
+          name: idempotency_key
+          description: Ключ идемпотентности
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: 963702c0-0134-41f9-8e11-fc2b1d0acf4c
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuaranteeRq'
+      responses:
+        201:
+          description: Заявка создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuaranteeRs'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+#                Токена нет, а права проверяем (добавлена проверка авторизации) (добавлена 401 ошибка)
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        409:
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        429:
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+    get:
+      summary: Метод получения всех заявок для данного клиента
+      description: Возвращает все заявки для данного клиента, используя пагинацию
+      security:
+        - bearerAuth: []
+      tags:
+          - quarantee
+      parameters:
+        - name: limit
+          in: query
+          description: Количество заявок клиента на одной странице
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Количество элементов, которые надо пропустить перед началом пагинации
+      responses:
+        200:
+          description: Получение всех зявок клиента на банковскую гарантию
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QuaranteeRs'
+        400:
+          description: Bed Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'        
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        409:
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        429:
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+  /quarantees/{quarantee_id}:
+    get:
+      summary: Метод получения определенной заявки на банковскую гарантию
+      description: Возвращает определенную заявку на банковскую гарантию
+      security:
+        - bearerAuth: []
+      tags:
+        - quarantee
+      parameters:
+        - name: quarantee_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Уникальный идентификатор заявки на банковскую гарантию
+          example: 7736a27b-96db-48e5-832a-6dde25367056
+      responses:
+        200:
+          description: Получение определенной заявки на бонковскую гарантию
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuaranteeRs'
+        400:
+          description: Bed Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+#                Без токена и прав можем получать информацию (добавлена проверка прав) (добавлена 401 ошибка)
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        409:
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        429:
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+    delete:
+      summary: Метод удаления заявки на банковскую гарантию
+      description: Метод позволяет удалить заявку на банковскую гарантию
+      security:
+        - bearerAuth: []
+      tags:
+        - quarantee
+      parameters:
+        - name: quarantee_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID заявки на банковскую гарантию
+          example: 7736a27b-96db-48e5-832a-6dde25367056
+      responses:
+        204:
+          description: Элемент удален
+        400:
+          description: Bed Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+#                Без токена и прав можем удалять (добавлена проверка авторизации) (добавлена 401 ошибка)
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Error'
+        409:
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        429:
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    GuaranteeRq:
+      type: object
+      required: [contract_number, amount, comission_amount, status, start_date, end_date, issued_at]
+#      Схемы закрыты, но расположены не на одном уровне с properties (исправлено)
+      properties:
+        contract_number:
+          type: string
+          description: Номер государственного контракта в Единой Информационной службе
+          minimum: 0
+          maximum: 50
+          example: 573958603857496738201756392746392047
+        amount:
+          type: number
+          format: decimal
+          description: Сумма государственного контракта
+          minimum: 1
+          maximum: 1000000000000000
+          example: 10000000.00
+        comission_amount:
+          type: number
+          format: decimal
+          description: Сумма комиссии за предоставление услуги банковской гарантии
+          minimum: 0
+          maximum: 1000000000000000
+          example: 30000.00
+        status:
+          type: string
+          enum: [issued, pending, rejected, cancelled]
+          description: Статус заявки
+          example: issued
+        start_date:
+          type: string
+          description: Дата начала работ по государственному контракту
+          example: 2026-01-15T09:50:00Z
+        end_date:
+          type: string
+          description: Дата окончания работ по государственному контракту
+          example: 2026-06-15T09:50:00Z
+      additionalProperties: false
+    QuaranteeRs:
+      type: object
+      description: Заявка на банковскую гарантию
+      required: [quarantee_id, contract_number, amount, comission_amount, status, start_date, end_date, issued_at]
+      properties:
+        quarantee_id:
+          type: string
+          description: ID заявки на банковскую гарантию
+          minLength: 36
+          maximum: 36
+          example: 7736a27b-96db-48e5-832a-6dde25367056
+        contract_number:
+          type: string
+          description: Номер государственного контракта в Единой Информационной службе
+          minLength: 0
+          maxLength: 50
+          example: 573958603857496738201756392746392047
+        amount:
+          type: number
+          format: decimal
+          description: Сумма государственного контракта
+          minimum: 1
+          maximum: 1000000000000000
+          example: 10000000.00
+        comission_amount:
+          type: number
+          format: decimal
+          description: Сумма комиссии за предоставление услуги банковской гарантии
+          minimum: 0
+          maximum: 100000000000000
+          example: 300000.00
+        status:
+          type: string
+          enum: [issued, pending, rejected, cancelled]
+          description: Статус заявки
+          example: issued
+        start_date:
+          type: string
+          description: Дата начала работ по государственному контракту
+          example: 2026-01-15T00:00:00Z
+        end_date:
+          type: string
+          description: Дата окончания работ по государственному контракту
+          example: 2026-06-15T00:00:00Z
+        issued_at:
+          type: string
+          description: Дата выдачи банковской гарантии по государственному контракту
+          example: 2026-01-10T09:50:00Z
+        _links:
+          type: array
+          description: Список доступных действий с заявкой
+          items:
+            type: object
+            properties:
+              method:
+                type: string
+                enum: [GET, POST, DELETE]
+              href:
+                type: string
+                format: uri
+                minLength: 1
+                maxLength: 2048
+            required: [method, href]
+            additionalProperties: false
+          minItems: 1
+          maxItems: 3
+          example:
+            - method: GET
+              href: "/quarantees/abc123"
+            - method: POST
+              href: "/quarantees/abc123"
+            - method: DELETE
+              href: "/quarantees/abc123"
+      additionalProperties: false
+
+    Error:
+      type: object
+      properties:
+        message:
+          title: Not found
+          type: string
+          description: Описание ошибки
+          example: Элемент не найден
+      additionalProperties: false

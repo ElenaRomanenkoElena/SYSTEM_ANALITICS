@@ -248,7 +248,7 @@ components:
     QuaranteeRq:
       type: object
       required: [contract_number, amount, comission_amount, status, start_date, end_date, issued_at]
-#      Схемы не закрыты (additional properties указано) + нет ограничений на количнство объектов в массиве, длине строк, числовых значений
+#      Схемы не закрыты (additional properties указано) + нет ограничений на количнство объектов в массиве, длине строк, числовых значений (добавлено)
       properties:
         contract_number:
           type: string
@@ -345,6 +345,8 @@ components:
               href:
                 type: string
                 format: uri
+                minLength: 1
+                maxLength: 2048
             required: [method, href]
             additionalProperties: false
           minItems: 1

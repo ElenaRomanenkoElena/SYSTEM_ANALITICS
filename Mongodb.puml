@@ -1,0 +1,20 @@
+@startuml
+title Физическая модель БД для хранения файлов сервиса банковских гарантий
+
+
+skinparam linetype ortho
+hide circle
+
+entity FILES {
+    file_id : UUID <<PK>>
+    --
+    file_name : VARCHAR(100) NOT NULL
+    file_size : INTEGER NOT NULL
+    data : BINARY NOT NULL
+    
+}
+
+
+
+
+@enduml

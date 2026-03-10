@@ -1,0 +1,80 @@
+@startuml
+title Физическая модель БД сервиса банковских гарантий
+
+
+skinparam linetype ortho
+hide circle
+
+entity CLIENTS {
+    client_id : UUID <<PK>>
+    --
+    client_type : VARCHAR(20) NOT NULL
+    name : VARCHAR(255) NOT NULL
+    inn : VARCHAR(12) NOT NULL UNIQUE
+    ogrn : VARCHAR(15)
+    registration_date : TIMESTAMP NOT NULL
+    adress : VARCHAR(255) NOT NULL
+    phone_number : INT (15)
+}
+
+entity APPLICATIONS {
+    application_id : UUID <<PK>>
+    --
+    client_id : UUID <<FK>> NOT NULL
+    created_at : TIMESTAMP NOT NULL
+    requested_amount : DECIMAL(15,2) NOT NULL
+    application_status : ENAM NOT NULL
+}
+
+entity VERIFICATIONS {
+    verification_id : UUID <<PK>>
+    --
+    application_id : UUID <<FK>> NOT NULL
+    verification_type : VARCHAR(50) NOT NULL
+    verification_description : VARCHAR(255)
+    result : ENAM
+    verification_date : TIMESTAMP
+    
+}
+
+entity DOCUMENTS {
+    document_id : UUID <<PK>>
+    --
+    application_id : UUID <<FK>> NOT NULL
+    file_id : UUID NOT NULL
+    contract_number: VARCHAR(50) NOT NULL
+    document_type : VARCHAR(50) NOT NULL
+    document_number : VARCHAR(50)
+    upload_date : TIMESTAMP
+    
+    
+}
+
+entity GUARANTEES {
+    guarantee_id : UUID <<PK>>
+    --
+    application_id : UUID <<FK>> NOT NULL
+    guarantee_number : VARCHAR(50) NOT NULL UNIQUE
+    issue_date : TIMESTAMP
+    expiry_date : TIMESTAMP
+    amount : DECIMAL(15,2) NOT NULL
+    guarantee_status : ENAM
+    commission : DECIMAL(10,2) NOT NULL
+}
+
+
+
+CLIENTS      ||--{ APPLICATIONS : подает
+APPLICATIONS ||--{ DOCUMENTS : прикладывает
+APPLICATIONS ||--{ VERIFICATIONS : проверяет
+APPLICATIONS -- GUARANTEES : выдает
+
+
+@enduml
+
+
+
+
+
+
+

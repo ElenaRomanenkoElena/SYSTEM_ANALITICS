@@ -24,6 +24,7 @@ class File {
 }
 
 
-User "1" o-- "*"  File 
+User "1" --* "1"  File 
 
 @enduml
+

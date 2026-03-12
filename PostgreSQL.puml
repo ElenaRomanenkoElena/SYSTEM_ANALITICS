@@ -14,7 +14,7 @@ entity CLIENTS {
     ogrn : VARCHAR(15)
     registration_date : TIMESTAMP NOT NULL
     adress : VARCHAR(255) NOT NULL
-    phone_number : INT (15)
+    phone_number : VARCHAR(20)
 }
 
 entity APPLICATIONS {

@@ -64,10 +64,10 @@ entity GUARANTEES {
 
 
 
-CLIENTS      ||--{ APPLICATIONS : подает
-APPLICATIONS ||--{ DOCUMENTS : прикладывает
-APPLICATIONS ||--{ VERIFICATIONS : проверяет
-APPLICATIONS -- GUARANTEES : выдает
+CLIENTS      ||--{ APPLICATIONS : id:client_id
+APPLICATIONS ||--{ DOCUMENTS : id:application_id
+APPLICATIONS ||--{ VERIFICATIONS : id:application_id
+APPLICATIONS -- GUARANTEES : id:application_id
 
 
 @enduml

@@ -19,7 +19,7 @@ class File {
     file_size : integer
     file_extension : string
     file_URL : string
-    upload_at : date
+    upload_at : string
     upload_by : User
 }
 

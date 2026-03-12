@@ -17,7 +17,7 @@ class File {
     _id : ObjectId
     file_name : string
     file_size : integer
-    file_extention : string
+    file_extension : string
     file_URL : string
     upload_at : date
     upload_by : User
